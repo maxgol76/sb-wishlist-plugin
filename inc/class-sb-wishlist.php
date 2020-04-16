@@ -105,8 +105,8 @@ if ( ! class_exists( 'SB_Wishlist' ) ) :
                 meta_type VARCHAR(255) NOT NULL ,
                 meta_name VARCHAR(255) NOT NULL ,
                 meta_order BIGINT NOT NULL ,
-                meta_category BIGINT NOT NULL ,
-                meta_connected VARCHAR(255) NOT NULL ,
+                meta_category  VARCHAR(255) NOT NULL ,
+                meta_connected BIGINT NOT NULL ,
                 meta_category_data LONGTEXT NOT NULL ,
                 PRIMARY KEY (meta_id))
                 $charset";
