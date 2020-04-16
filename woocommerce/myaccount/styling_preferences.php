@@ -1,42 +1,65 @@
 <?php 
     $user = wp_get_current_user();
-    $userdata = SB_Wishlist_Form::get_current_user($user->ID); 
-    $userform = unserialize($userdata[0]->user_data);
-    $fields = SB_Wishlist_Admin::get_user_fields();
+    $userdata = SB_Wishlist_Form::get_current_user( $user->ID );  /* Gets array of objects from the sbws_users  table*/
+    $userform = unserialize( $userdata[0]->user_data ); /* Gets data from user_data field of sbws_users table */
+    $fields = SB_Wishlist_Admin::get_user_fields();  /* Gets array of objects from the sbws_formmeta table*/
 ?>
 <div class="styling-profile">
-    <h3 class="title">Your styling profile</h3>
-    <p>This is used for automatically recommending items to you!</p>
+    <h3 class="title"><?php _e( 'Your styling profile', 'sb-wishlist' ); ?></h3>
+    <p><?php _e( 'This is used for automatically recommending items to you!', 'sb-wishlist' ); ?></p>
     <div class="settings-wrap">
         <div class="settings">
-            <?php foreach ($fields as $row): ?>
+            <?php foreach ( $fields as $row ) : ?>
+            <?php $arr_user_term = array();
+
+
+            if ( ! empty ( $userform ) ) {
+
+                foreach ($userform as $value):
+                    if ($row->meta_id === $value['meta_id']) {
+                        $arr_user_term[] = $value['value'];
+                    }
+                endforeach;
+            }
+                ?>
                 <div class="item-row">
-                    <h4 class="field-title"><?php echo $row->meta_name; ?></h4>
+                    <!--<h4 class="field-title"><?php /*echo $row->meta_name; */?></h4>-->
+                    <label for=""><?php _e( $row->meta_name, 'sb-wishlist' ); ?></label>
+
                     <div class="field-value">
-                        <?php if($row->meta_type === 'checkbox' || $row->meta_type === 'radiobox') : $cats = get_terms( $row->meta_category, array( 'orderby' => 'name',  'order' => 'asc', 'hide_empty' => false)); ?>
-                            <select class="field-options-select"  <?php if($row->meta_type === 'checkbox') echo 'multiple="multiple"'; ?>>
-                                <?php foreach($cats as $item): ?>
-                                    <option value="<?php echo $item->term_id; ?>"><?php echo $item->name; ?></option>
+                        <?php if( $row->meta_type === 'checkbox' || $row->meta_type === 'radiobox' ) :
+
+                            $cats = get_terms( $row->meta_category, array( 'orderby' => 'name',  'order' => 'asc', 'hide_empty' => false ) );
+
+                        ?>
+                            <select class="field-options-select"  <?php if( $row->meta_type === 'checkbox' ) echo 'multiple="multiple"'; ?>>
+                                <?php foreach( $cats as $item ) : ?>
+                                    <option value="<?php echo $item->term_id; ?>" <?php echo in_array( $item->term_id, $arr_user_term ) ? 'selected' : ''; ?> ><?php echo $item->name; ?></option>
                                 <?php endforeach; ?>
                             </select>
-                        <?php elseif($row->meta_type === 'imagebox'): $items = unserialize($row->meta_category_data);?>
-                            <select class="field-options-select"  <?php if($row->meta_type === 'checkbox') echo 'multiple="multiple"'; ?>>
-                                <?php foreach($items as $item): ?>
-                                    <option value="<?php echo $item['cat_id']; ?>"><?php echo $item['title']; ?></option>
+                        <?php elseif( $row->meta_type === 'imagebox' ) :
+                            $items = unserialize( $row->meta_category_data );
+
+                        ?>
+                            <select class="field-options-select"  <?php if( $row->meta_type === 'checkbox' ) echo 'multiple="multiple"'; ?>>
+                                <?php foreach( $items as $item ) : ?>
+                                    <option value="<?php echo $item['cat_id']; ?>" <?php echo in_array( $item['cat_id'], $arr_user_term ) ? 'selected' : ''; ?>><?php echo $item['title']; ?></option>
                                 <?php endforeach; ?>
                             </select>
-                        <?php elseif($row->meta_type === 'yes_or_no'):?>
+                        <?php elseif( $row->meta_type === 'yes_or_no' ) : ?>
+
                             <div class="form-check form-check-inline form-radio">
-                                <input class="form-check-input" type="radio" name="field_option_<?php echo $row->meta_id ?>" id="field_id_<?php echo $row->meta_id ?>_1" value="1">
-                                <label class="form-check-label" for="field_id_<?php echo $row->meta_id ?>_1">Yes</label>
+                                <input class="form-check-input" type="radio" name="field_option_<?php echo $row->meta_id ?>" id="field_id_<?php echo $row->meta_id ?>_1" value="1" <?php echo $arr_user_term[0] == 1 ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="field_id_<?php echo $row->meta_id ?>_1"><?php _e( 'Yes', 'sb-wishlist' ); ?></label>
                             </div>
                             <div class="form-check form-check-inline form-radio">
-                                <input class="form-check-input" type="radio" name="field_option_<?php echo $row->meta_id ?>" id="field_id_<?php echo $row->meta_id ?>_2" value="0">
-                                <label class="form-check-label" for="field_id_<?php echo $row->meta_id ?>_2">No</label>
+                                <input class="form-check-input" type="radio" name="field_option_<?php echo $row->meta_id ?>" id="field_id_<?php echo $row->meta_id ?>_2" value="0" <?php echo $arr_user_term[0] == 0 ? 'checked' : ''; ?> >
+                                <label class="form-check-label" for="field_id_<?php echo $row->meta_id ?>_2"><?php _e( 'No', 'sb-wishlist' ); ?></label>
                             </div>
-                        <?php elseif($row->meta_type === 'textbox'): $value = array_map('get_preference', $userform, $row);?>
+                        <?php elseif( $row->meta_type === 'textbox' ) : ?>
+
                             <div class='form-group'>
-                                <textarea name="field_option_<?php echo $row->meta_id ?>" value="<?php ?>" class='form-control'></textarea>
+                                <textarea name="field_option_<?php echo $row->meta_id ?>" value="<?php echo $arr_user_term[0]; ?>" class='form-control'><?php echo $arr_user_term[0]; ?></textarea>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -44,44 +67,27 @@
             <?php endforeach; ?>
         </div>
     </div>
-    <?php /*
-    <div class="settings-wrap">
-        <div class="settings">
-            <div><p>Size on bottoms</p><span>M</span></div>
-            <div><p>Size on tops</p><span>S</span></div>
-            <div><p>Size full body</p><span>S</span></div>
-        </div>
-        <div class="settings">
-            <div><p>Style profile</p><span>Chic</span></div>
-            <div><p>Body type</p><span>Triangle</span></div>
-        </div>
-    </div>
 
-    <h3>Good to know information</h3>
-    <p>This is used in cases you use our styling service and is good information for us to have when closing new clothing for our wardrobe!</p>
-
-    <div class="settings">
-        <div><p>Color profile</p><span>No color</span></div>
-        <div><p>Your notes to us:</p></div>
-        <p class="notes">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem voluptate magnam dignissimos vero recusandae adipisci?</p>
-    </div>*/ ?>
-
-    <h3>Your disliked items</h3>
-    <p>These items will never be recommended to you</p>
     <div class="edit-profile"><a href="#" class="btn ">Edit profile</a></div>
-    
+
+
+    <!--<h3><?php /*_e( 'Your disliked items!', 'sb-wishlist' ); */?></h3>
+    <p><?php /*_e( 'These items will never be recommended to you', 'sb-wishlist' ); */?></p>
+
+    <div style="margin-bottom: 40px;"></div>
+
     <?php
-        $args = array('post_type' => 'product', 'posts_per_page' => 3, 'product_cat' => 'chic');
+/*        $args = array('post_type' => 'product', 'posts_per_page' => 3, 'product_cat' => 'chic');
         $loop = new WP_Query($args);
         while ($loop->have_posts()) : $loop->the_post();
         global $product;
-    ?>
+    */?>
     <div class="disliked-product">
-        <img src="<?= get_the_post_thumbnail_url($loop->post->ID); ?>" alt="shop_catalog">
-        <h3 class="product-title"><?= get_the_title() ?></h3>
+        <img src="<?/*= get_the_post_thumbnail_url($loop->post->ID); */?>" alt="shop_catalog">
+        <h3 class="product-title"><?/*= get_the_title() */?></h3>
         <a href="#" class="btn ">Delete from dislike list</a>
     </div>
-    <?php endwhile;
+    --><?php /*endwhile;
     wp_reset_query();
-    ?>
+    */?>
 </div>
