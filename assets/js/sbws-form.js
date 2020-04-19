@@ -46,10 +46,10 @@
             $(window).on('load', function(){
                 var request;
                 
-                request = wp.ajax.post(_sbWishlist.action + '_get_form',{
+                request = wp.ajax.post( _sbWishlist.action + '_get_form',{
                     nonce: _sbWishlist.nonce
                 });
-                request.done(function(response){
+                request.done(function( response ){
                     var data = response.data, count = data.length;
                     item = wp.template( 'sbws-form-step' );
                     _.each(data, function(el){
@@ -68,7 +68,7 @@
         },
         loadFields: function(stepId){
             var request;
-            request = wp.ajax.post(_sbWishlist.action + '_get_fields',{
+            request = wp.ajax.post( _sbWishlist.action + '_get_fields',{
                 nonce: _sbWishlist.nonce,
                 step_id: stepId
             });
@@ -155,18 +155,54 @@
             });
         },
         submitForm: function(){
-            $('.sbws-form-wrap').on('submit', function(e){
+            $('.sbws-form-styling').on('submit', function(e){
                 e.preventDefault();
-                var request, data = $(this).serializeArray();
-                request = wp.ajax.post(_sbWishlist.action + '_submit_form',{
-                    nonce: _sbWishlist.nonce,
-                    data: data
-                });
-                request.done(function(response){
-                    console.log(response);
-                });
+
+                $('#save-profile span').text('Save process');
+                 var request, data = $(this).serializeArray();
+
+                var k;
+
+                for ( k=0; k<data.length; k++ ) {
+                    if ( data[k]['name'] === "field_option_7" ) {
+                        if ( $('#field_id_7_1').is(':checked') ) {
+                            data[k]['value'] = '1';
+                        } else {
+                            data[k]['value'] = '0';
+                        }
+                    }
+
+                    if ( data[k]['name'] === "field_option_8" ) {
+                        if ( $('#field_id_8_1').is(':checked') ) {
+                            data[k]['value'] = '1';
+                        } else {
+                            data[k]['value'] = '0';
+                        }
+                    }
+                }
+
+                   //  console.log( data );
+
+                 request = wp.ajax.post(_sbWishlist.action + '_submit_form',{
+                     nonce: _sbWishlist.nonce,
+                     data: data
+                 });
+                 request.done( function(response){
+
+                     if( response.success ){
+                         $('#save-profile span').text('Your styling saved!');
+                         setTimeout( sayButton, 3000 );
+                     }
+                 });
             });
         }
     }
     sbws_form.init();
+
+
+    function sayButton() {
+        $('#save-profile span').text('Save profile');
+    }
+
+
 })( jQuery );
