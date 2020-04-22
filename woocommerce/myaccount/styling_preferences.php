@@ -4,12 +4,17 @@
     $userform = unserialize( $userdata[0]->user_data ); /* Gets data from user_data field of sbws_users table */
     $fields = SB_Wishlist_Admin::get_user_fields();  /* Gets array of objects from the sbws_formmeta table*/
 ?>
+
+<?php
+
+if ( wcs_user_has_subscription( $user->ID, '', 'active' ) ) :
+
+?>
+
 <div class="styling-profile">
-    <h3 class="title"><?php _e( 'Your styling profile', 'sb-wishlist' ); ?></h3>
-    <p><?php _e( 'This is used for automatically recommending items to you!', 'sb-wishlist' ); ?></p>
 
-
-    <?php /*sbws_form()->get_wishlist_form( 26658 ); */?>
+    <!--<h3 class="title"><?php /*_e( 'Your styling profile', 'sb-wishlist' ); */?></h3>
+    <p><?php /*_e( 'This is used for automatically recommending items to you!', 'sb-wishlist' ); */?></p>-->
 
 
     <form class="sbws-form-styling" method="POST">
@@ -32,6 +37,8 @@
             }
                 ?>
                 <div class="item-row">
+
+                    <?php if ( $row->meta_type !== 'plain_text' ) : ?>
 
                     <label for="field_option_<?php echo $row->meta_id ?>"><?php _e( $row->meta_name, 'sb-wishlist' ); ?></label>
 
@@ -75,6 +82,13 @@
                             </div>
                         <?php endif; ?>
                     </div>
+
+                    <?php  else : ?>
+
+                        <?php if ( $row->meta_name === 'Survey' ) { echo __( $row->meta_category_data, 'sb-wishlist' ); } ?>
+
+                    <?php  endif;  ?>
+
                 </div>
             <?php endforeach; ?>
         </div>
@@ -108,3 +122,12 @@
     wp_reset_query();
     */?>
 </div>
+
+<?php  else: ?>
+    <p class="no_subscriptions woocommerce-message woocommerce-message--info woocommerce-Message woocommerce-Message--info woocommerce-info">
+
+    <?php    printf( esc_html__( 'You have no active subscriptions. Find your first subscription in the %sstore%s.', 'woocommerce-subscriptions' ), '<a href="' . esc_url( apply_filters( 'woocommerce_subscriptions_message_store_url', get_permalink( wc_get_page_id( 'shop' ) ) ) ) . '">', '</a>' ); ?>
+
+    </p>
+
+ <?php   endif;

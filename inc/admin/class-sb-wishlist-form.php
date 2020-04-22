@@ -107,8 +107,10 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
 
         public function form_scripts(){
             wp_enqueue_style('sbws-form', sbws_init()->get_plugin_url() . 'assets/css/sbws-form.css', array(), '1.0.0');
-            
-            wp_enqueue_script('sbws-form', sbws_init()->get_plugin_url() . 'assets/js/sbws-form.js', array('jquery', 'wp-api', 'wp-a11y', 'wp-util'), '1.0.0', true);
+
+           // wp_enqueue_script(sbws_init()->get_slug(), sbws_init()->get_plugin_url() . 'assets/js/sbws-scripts.js', array('jquery', 'jquery-ui-dialog', 'wp-a11y', 'wp-util'), '1.0.0', true);
+
+            wp_enqueue_script(sbws_init()->get_slug(), sbws_init()->get_plugin_url() . 'assets/js/sbws-form.js', array('jquery', 'wp-api', 'wp-a11y', 'wp-util'), '1.0.0', true);
         
             $data = array(
                 'nonce' => wp_create_nonce(self::AJAX_ACTION),
@@ -121,7 +123,7 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                 ),
             );
             wp_scripts()->add_data(
-                'sbws-form',
+                sbws_init()->get_slug(),
                 'data',
                 sprintf('var _sbWishlist = %s;', wp_json_encode($data))
             );  
@@ -130,17 +132,32 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
             $order = wc_get_order( $order_id );
             $is_subscription = false;     
             foreach ( $order->get_items() as $item_id => $item ) {
-                if(in_array($item['product_id'], sbws_init()->get_option( 'form_product' ))){
+                if ( in_array( $item['product_id'], sbws_init()->get_option( 'form_product'  ) ) ) {
                     $is_subscription = true;
                 }
             }
-            if($is_subscription && !self::check_if_user_exist($order->customer_id)){
+            if ( $is_subscription && !self::check_if_user_exist($order->customer_id ) ) {
                 $result = self::add_new_user($order);
             }
-            if($is_subscription && sbws_init()->get_option( 'enable_form' )){ ?>
-                <div class="sbws-form" id='sbws-form'>
-                    <form class="sbws-form-wrap" method="POST">
-                        <input type="hidden" value="<?php echo $order->customer_id; ?>" name="sb_user_id" />
+            if ( $is_subscription && sbws_init()->get_option( 'enable_form' ) ) { ?>
+                <!--<div class="sbws-form" id='sbws-form'>-->
+
+                        <div class="sbws-form-wrap">
+                            <!-- in this wrap insert page builder -->
+                        </div>
+                        <!--<div class="sbws-form-add-step">
+                            <a href="#" action-type="add-step" title="<?php /*_e( 'Add New Step', 'sb-wishlist' ); */?>" class="sbws-form-add-step-button">
+                                Add new step
+                            </a>
+                        </div>-->
+
+                    <!--<form class="sbws-form-wrap" method="POST">
+                        <input type="hidden" value="<?php /*echo $order->customer_id; */?>" name="sb_user_id" />
+                        <?php /*//require( sbws_init()->get_plugin_path() . 'woocommerce/myaccount/styling_preferences.php' );
+
+                        //include_once $plugin_path . 'woocommerce/myaccount/styling_preferences.php';
+                        */?>
+
                     </form>
                     <div class="sbws-form-controls">
                         <div class="sbws-form-controls-points">
@@ -150,11 +167,46 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                             <button type="button" class="btn btn-skip">Skip</button>
                             <button type="button" class="btn btn-next">Next</button>
                         </div>
-                    </div>
-                </div>
+                    </div>-->
+                <!--</div>-->
         <?php
             }
         }
+
+        public function get_wishlist_styling_form( $order_id ){
+
+            if ( is_user_logged_in() ) :
+
+            $order = wc_get_order( $order_id );
+
+                if ( sizeof( $order->get_items() ) > 0 ) :
+
+                    $is_subscription = false;
+                    foreach ( $order->get_items() as $item_id => $item ) {
+                        if ( in_array( $item['product_id'], sbws_init()->get_option( 'form_product'  ) ) ) {
+                            $is_subscription = true;
+                        }
+                    }
+                    if ( $is_subscription && !self::check_if_user_exist( $order->customer_id ) ) {
+                        $result = self::add_new_user( $order );
+                    }
+                    if ( $is_subscription && sbws_init()->get_option( 'enable_form' ) ) { ?>
+
+                        <?php
+                    }
+
+                    require( sbws_init()->get_plugin_path() . 'woocommerce/myaccount/styling_preferences.php' );
+
+                    $data = self::get_footer_text();
+
+                    echo '<p style="margin-top:40px;">' . $data->meta_category_data . '</p>';
+
+                endif;
+
+            endif;
+
+        }
+
         private function add_new_user($order){
             $userID = $order->customer_id;
             $date_start = $order->order_date;
@@ -195,6 +247,13 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
             $result = $wpdb->get_results("SELECT * FROM $table WHERE form_id = $step_id ORDER BY meta_order ASC");
             return $result;
         }
+        private function get_footer_text(){
+            global $wpdb;
+            $table = $wpdb->prefix . 'sbws_formmeta';
+            $result = $wpdb->get_row("SELECT * FROM $table WHERE meta_name = 'Thank you!'");
+            return $result;
+        }
+
         
         public function render_templates(){
             ?>
@@ -309,27 +368,32 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
             wp_send_json_success($result);
         }
         public function ajax_submit_form(){
-            if (!check_ajax_referer(self::AJAX_ACTION, 'nonce', false)) {
-                status_header(400);
+
+           /* if ( ! check_ajax_referer(self::AJAX_ACTION, 'nonce', false ) ) {
+                status_header( 400);
                 wp_send_json_error('bad_nonce');
-            } elseif ('POST' !== $_SERVER['REQUEST_METHOD']) {
-                status_header(405);
-                wp_send_json_error('bad_method');
-            }
+            } elseif ( 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+                status_header( 405);
+                wp_send_json_error( 'bad_method' );
+            }*/
+
             $data = $_POST['data'];
-            $user = array_shift($data);
+
+            $user = array_shift( $data );
             
-            $data = array_map('clean_submit_form', $data);
+            $data = array_map( 'clean_submit_form', $data );
             
             global $wpdb;
             $table = $wpdb->prefix . 'sbws_users';
-            $wpdb->update($table, array('user_data' => serialize($data)), array('user_id' => $user['value']));
+            $wpdb->update( $table, array( 'user_data' => serialize( $data ) ), array( 'user_id' => $user['value'] ) );
             
             $response['form'] = $data;
-            wp_send_json_success($response);
+            $response['success'] = true;
+            //wp_send_json_success(array('success' => true));
+
+            wp_send_json_success( $response );
         }
-        
-        
-        
+
+
     }
 endif;

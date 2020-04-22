@@ -60,3 +60,24 @@ function get_preference($data, $row){
     return $result;
 }
 
+
+add_action( 'woocommerce_thankyou', 'SB_Wishlist_Form::get_wishlist_styling_form', 20 );
+
+
+//add_action( 'yith_wcwl_before_wishlist', 'wishlist_dropdown'  );
+
+function wishlist_dropdown () {
+    //printf( '<div class="bag-product clearfix"><p>%1$s</p></div>', esc_html( 'recommendation' ) );
+    //return '<div class="bag-product clearfix"><p>Recommendation</p></div>';
+    echo ('<p>Recommendation</p>' );
+}
+
+
+add_action( 'yith_wcwl_before_wishlist_share', 'wishlist_recommendation'  );
+
+add_action( 'yith_wcwl_before_wishlist_form', 'wishlist_recommendation'  );
+function wishlist_recommendation () {
+    echo "<h2>Wishlist recomendation<h2>";
+}
+
+
