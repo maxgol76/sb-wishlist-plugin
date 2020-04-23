@@ -125,13 +125,6 @@ if ( ! class_exists( 'SB_Wishlist' ) ) :
                 $charset";
             dbDelta( $sql_form );
             
-            /*
-            $wpdb->insert($table_formvars, array('option_name' => 'In Stock', 'option_active' => true, 'option_mandatory' => true, 'option_score' => 1, 'option_field_id' => 0, 'option_form_id' => 0));
-            $wpdb->insert($table_formvars, array('option_name' => 'In Wishlist', 'option_active' => true, 'option_mandatory' => true, 'option_score' => 1, 'option_field_id' => 0, 'option_form_id' => 0));
-            $wpdb->insert($table_formvars, array('option_name' => 'Rating', 'option_active' => true, 'option_mandatory' => true, 'option_score' => 1, 'option_field_id' => 0, 'option_form_id' => 0));
-            $wpdb->insert($table_formvars, array('option_name' => 'Profile Match', 'option_active' => true, 'option_mandatory' => true, 'option_score' => 1, 'option_field_id' => 0, 'option_form_id' => 0));
-            */
-            
             $table_users = $wpdb->prefix . 'sbws_users';
             $sql_form = "CREATE TABLE $table_users (
                 id BIGINT NOT NULL AUTO_INCREMENT,

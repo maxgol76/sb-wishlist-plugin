@@ -390,10 +390,10 @@ if (!class_exists('SB_Wishlist_Admin') && class_exists('SB_Wishlist')) :
                 'settings' => __('Settings', 'sb-wishlist'),
                 'form' => __('Form layout', 'sb-wishlist'),
                 'styling' => __('Styling variables', 'sb-wishlist'),
-                'wishlist' => __('Wishlist', 'sb-wishlist'),
+                //'wishlist' => __('Wishlist', 'sb-wishlist'),
                 'users' => __('Users', 'sb-wishlist'),
-                'analytics' => __('Analytics', 'sb-wishlist'),
-                'export' => __('Export data', 'sb-wishlist'),
+                //'analytics' => __('Analytics', 'sb-wishlist'),
+                //'export' => __('Export data', 'sb-wishlist'),
             );
             return $tabs;
         }
@@ -811,12 +811,12 @@ if (!class_exists('SB_Wishlist_Admin') && class_exists('SB_Wishlist')) :
             global $wpdb;
             $table = $wpdb->prefix . 'sbws_formmeta';
             
-            $fields = $wpdb->get_results("SELECT meta_id, meta_type, meta_name, meta_category, meta_category_data FROM $table WHERE NOT meta_type = 'plain_text' ORDER BY meta_id ASC");
+            $fields = $wpdb->get_results("SELECT meta_id, meta_type, meta_name, meta_category, meta_category_data FROM $table /*WHERE NOT meta_type = 'plain_text'*/ ORDER BY meta_id ASC");
             
             return $fields;
         }
         
-        public function get_suggested_list($userID){
+        public function get_suggested_list(){
             global $wpdb;
             $table = $wpdb->prefix . 'sbws_formmeta';
             
@@ -832,7 +832,7 @@ if (!class_exists('SB_Wishlist_Admin') && class_exists('SB_Wishlist')) :
             
             $args = array(
                 'post_type' => 'product',
-                'posts_per_page' => '12',
+                'posts_per_page' => '3',
                 'status' => 'publish',
                 'orderby' => 'date',
                 'order' => 'DESC',
@@ -889,6 +889,7 @@ if (!class_exists('SB_Wishlist_Admin') && class_exists('SB_Wishlist')) :
             $products = wc_get_products( $args );
             return $products;
         }
+
          private function get_cats($f){
             return array(
                 'taxonomy' => 'product_cat',
