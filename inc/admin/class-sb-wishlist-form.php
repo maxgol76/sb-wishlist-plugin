@@ -207,6 +207,239 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
 
         }
 
+        private function get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms ){
+
+            global $wpdb;
+            //$table = $wpdb->prefix . 'sbws_formmeta';
+            //$fields = $wpdb->get_results("SELECT meta_id, meta_category, meta_connected FROM $table WHERE meta_type = 'checkbox' ORDER BY meta_id ASC");
+
+
+            /*$cats = array_map(array($this, 'get_cats'), $fields);
+            /*$cats = array();
+            foreach ($fields as $f) {
+                array_push($cats, [
+                    'taxonomy' => 'product_cat',
+                    'terms' => intval($f->meta_connected),
+                ]);
+            }*/
+
+           /* echo "<pre>";
+            var_dump($arr_terms_category);
+            echo "</pre>";*/
+
+            $args = array(
+                /*'post_type' => 'product',*/
+                /*'posts_per_page' => '3',*/
+                'limit' => 3,
+                'status' => 'publish',
+                'orderby' => 'date',
+                'order' => 'DESC',
+                //'parent' => $arr_terms_category,
+                //'category' => array( 'overdelar' ), // 'overdelar' (id=109) , 'underdelar' (id=110) , 'helkropp' (id=111)
+
+                'stock_status' => 'instock',
+
+                'tax_query' => array(
+                    'relation' => 'AND',
+                    array(
+                        'relation' => 'AND',
+                        array(
+                            'taxonomy' => 'product_cat',
+                            'field' => 'id',
+                            'terms' => $arr_terms_category, //array( 109 ),  // overdelar
+                            'include_children' => true,
+                            'operator' => 'IN'
+                        ),
+                        array(
+                            'taxonomy' => 'pa_storlek',
+                            'field' => 'id',
+                            'terms' => $arr_user_terms, //array( 24, 26 ), // Size: S and M
+                            'operator' => 'IN'
+                        )
+                    ),
+                )
+            );
+            $products = wc_get_products( $args );
+            return $products;
+        }
+
+        public function get_suggested_list( $userID ){
+            global $product, $woocommerce;
+
+            if ( is_user_logged_in() ) :
+
+             ?>
+
+            <ul class="sbws-users-list">
+
+                <div class="item-right">
+
+                        <?php
+
+                        if ( ! is_admin() ) {
+                            $user_id = get_current_user_id();
+                        } else {
+                            $user_id = $userID;
+                        }
+
+                        /*echo "<pre>";
+                        var_dump( $user_id );
+                        echo "</pre>";*/
+
+
+                        $fields = SB_Wishlist_Admin::get_user_fields();  /* Gets array of objects from the sbws_formmeta table*/
+
+                        $userdata = self::get_current_user( $user_id );  /* Gets array of objects from the sbws_users  table*/
+                        $userform = unserialize( $userdata[0]->user_data ); /* Gets data from user_data field of sbws_users table */
+
+
+                        //if ( wcs_user_has_subscription( $user_id, '', 'active' ) ) :
+
+                        foreach ( $fields as $row ) :
+
+                            if ( ! empty ( $userform ) ) {
+
+                                $arr_user_terms = array();
+
+                                foreach ( $userform as $value ) :
+                                    if ( $row->meta_id === $value['meta_id'] ) {
+                                        $arr_user_terms[] = $value['value'];
+                                    }
+                                endforeach;
+                            }
+
+
+                            if ( $row->meta_type !== 'plain_text' ) :
+
+                                $recommendations = 0;
+                                $arr_terms_category = array();
+
+                                /* Size on tops */
+                                if ( $row->meta_id == 2 ) {
+
+                                    $cat = get_term_by( 'slug', 'overdelar', 'product_cat' );
+                                    $arr_terms_category[] = $cat->term_id;
+
+                                    //$size = wc_get_attribute( $arr_user_terms[0] );
+                                    $size = get_term( $arr_user_terms[0], 'pa_storlek' );
+                                    $size = $size->name;
+
+
+                                    $recommendations = self::get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms );
+
+                                    if ( ! empty( $recommendations ) ) : ?>
+
+                                    <p><br /></p>
+
+                                    <h3 class="field-title"><?php _e( 'Top recommendations', 'sb-wishlist' ); ?></h3>
+
+                                    <?php endif;
+
+                                } elseif ( $row->meta_id == 3 ) { /* Size on bottom */
+
+                                    $cat = get_term_by( 'slug', 'underdelar', 'product_cat' );
+                                    $arr_terms_category[] = $cat->term_id;
+
+                                    //$size = wc_get_attribute( $arr_user_terms[0] );
+                                    $size = get_term( $arr_user_terms[0], 'pa_storlek' );
+                                    $size = $size->name;
+
+                                    $recommendations = self::get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms );
+
+                                    if ( ! empty( $recommendations ) ) : ?>
+
+                                        <p><br /></p>
+
+                                        <h3 class="field-title"><?php _e( 'Bottom recommendations', 'sb-wishlist' ); ?></h3>
+
+                                    <?php endif;
+                                } elseif ( $row->meta_id == 4 ) { /* Size full body */
+
+                                    $cat = get_term_by( 'slug', 'helkropp', 'product_cat' );
+                                    $arr_terms_category[] = $cat->term_id;
+
+                                    //$size = wc_get_attribute( $arr_user_terms[0] );
+                                    $size = get_term( $arr_user_terms[0], 'pa_storlek' );
+                                    $size = $size->name;
+
+                                    $recommendations = self::get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms );
+
+                                    if ( ! empty( $recommendations ) ) : ?>
+
+                                        <p><br /></p>
+
+                                    <h3 class="field-title"><?php _e( 'Full body recommendations', 'sb-wishlist' ); ?></h3>
+
+                                    <?php endif;
+                                }
+
+                                //$recommendations = self::get_suggested_product( $user_id );
+
+                                if ( ! empty( $recommendations ) ) : ?>
+
+                                <ul class="sbws-recommendation-list">
+                                    <?php foreach ( $recommendations as $item ):
+
+                                        $data = $item->get_data();
+
+                                        $product = new WC_Product( $item->id );
+                                        $availability = $product->get_availability();
+                                        $stock_status = isset( $availability['class'] ) ? $availability['class'] : false;
+
+                                        //$img = wp_get_attachment_image( $data['image_id'], 'thumbnail' ); ?>
+
+                                        <li class="list-item">
+                                            <div class="list-item-inner">
+                                                <div class="sbws-col" data-col="image">
+                                                    <a href="<?php echo esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) ?>">
+                                                        <?php echo wp_kses_post( $product->get_image() ); //$img; ?>
+                                                    </a>
+                                                </div>
+
+                                               <!-- <div class="sbws-col" data-col="sku"><?php /*echo $item->get_sku(); */?></div>-->
+                                                <div class="sbws-col" data-col="name">
+                                                    <a href="<?php echo esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) ?>">
+                                                        <?php echo $data['name']; ?>
+                                                    </a>
+                                                </div>
+                                                <div class="sbws-col" data-col="size">
+                                                    <?php $array_size = explode(", ", $item->get_attribute( 'pa_storlek' ) ); //echo $item->get_attribute('pa_storlek');
+                                                    if ( in_array( $size,  $array_size ) ) {
+                                                        echo "Size: " . $size;
+                                                    }
+                                                    ?>
+                                                </div>
+                                                <div class="sbws-col" data-col="button">
+                                                    <?php if( isset( $stock_status ) && $stock_status != 'out-of-stock'&& !is_admin() ): ?>
+                                                        <?php woocommerce_template_loop_add_to_cart(); ?>
+                                                    <?php endif ?>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul> <?php
+
+                                endif;
+
+                            endif;
+
+                        endforeach;  ?>
+
+
+
+
+                </div>
+            </ul>
+                <?php if ( ! is_admin()) : ?>
+                <p><br /></p>
+                <h3 class="field-title"><?php _e( 'Wishlist', 'sb-wishlist' ); ?></h3>
+                <?php endif; ?>
+
+
+            <?php endif;
+
+        }
+
         private function add_new_user($order){
             $userID = $order->customer_id;
             $date_start = $order->order_date;

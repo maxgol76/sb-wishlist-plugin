@@ -10,11 +10,6 @@
         $userdata = get_userdata( $user->user_id );  /* Gets a WP_User object that contains all the data for the current user */
         $usermeta = get_user_meta( $user->user_id ); /* Gets array of all meta fields of the current user */
         $userform = unserialize( $user->user_data ); /* Gets data from user_data field of sbws_users table */
-
-        /*echo "<pre>";
-        var_dump( empty ($user->user_data) );
-        echo "</pre>";*/
-
     ?>
         <li class="list-item">
             <div class="list-item-inner">
@@ -69,24 +64,29 @@
                     </div>
                     <?php endif; ?>
                 </div>
-
                 <div class="item-right">
-                    <h3 class="field-title"><?php _e( 'Top recommendations', 'sb-wishlist' ); ?></h3>
-                    <?php $recommendations = SB_Wishlist_Admin::get_suggested_list( $user->user_id, $userform );  ?>
+
+                <?php SB_Wishlist_Form::get_suggested_list( $user->user_id );  ?>
+
+                </div>
+
+                <!--<div class="item-right">
+                    <h3 class="field-title"><?php /*_e( 'Top recommendations', 'sb-wishlist' ); */?></h3>
+                    <?php /*$recommendations = SB_Wishlist_Admin::get_suggested_list( $user->user_id, $userform );  */?>
                     <ul class="sbws-recommendation-list">
-                    <?php foreach ( $recommendations as $item ): $data = $item->get_data();  $img = wp_get_attachment_image( $data['image_id'], 'thumbnail' );?>
+                    <?php /*foreach ( $recommendations as $item ): $data = $item->get_data();  $img = wp_get_attachment_image( $data['image_id'], 'thumbnail' );*/?>
                         <li class="list-item">
                             <div class="list-item-inner">
-                                <div class="sbws-col" data-col="image"><?php echo $img; ?></div>
-                                <div class="sbws-col" data-col="sku"><?php echo $item->get_sku(); ?></div>
-                                <div class="sbws-col" data-col="name"><?php echo $data['name']; ?></div>
-                                <div class="sbws-col" data-col="size"><?php echo $item->get_attribute('pa_storlek'); ?></div>
+                                <div class="sbws-col" data-col="image"><?php /*echo $img; */?></div>
+                                <div class="sbws-col" data-col="sku"><?php /*echo $item->get_sku(); */?></div>
+                                <div class="sbws-col" data-col="name"><?php /*echo $data['name']; */?></div>
+                                <div class="sbws-col" data-col="size"><?php /*echo $item->get_attribute('pa_storlek'); */?></div>
                             </div>
                         </li>
-                    <?php endforeach; ?>
+                    <?php /*endforeach; */?>
                     </ul>
-                    <pre><?php// var_dump ($recommendations); ?></pre>
-                </div>
+
+                </div>-->
             </div>
         </li>
     <?php endforeach; ?>

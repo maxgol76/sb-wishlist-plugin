@@ -72,10 +72,12 @@ function wishlist_dropdown () {
     echo ('<p>Recommendation</p>' );
 }
 
+// SB_Wishlist_Admin::get_suggested_list
 
 add_action( 'yith_wcwl_before_wishlist_share', 'wishlist_recommendation'  );
 
-add_action( 'yith_wcwl_before_wishlist_form', 'wishlist_recommendation'  );
+add_action( 'yith_wcwl_before_wishlist_form', 'SB_Wishlist_Form::get_suggested_list'  );
+//add_action( 'yith_wcwl_before_wishlist_form', 'wishlist_recommendation'  );
 function wishlist_recommendation () {
     echo "<h2>Wishlist recomendation<h2>";
 }

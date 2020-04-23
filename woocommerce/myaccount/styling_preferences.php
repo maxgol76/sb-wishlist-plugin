@@ -24,13 +24,14 @@ if ( wcs_user_has_subscription( $user->ID, '', 'active' ) ) :
         <div class="settings">
 
             <?php foreach ( $fields as $row ) : ?>
-            <?php $arr_user_term = array();
-
+            <?php
 
             if ( ! empty ( $userform ) ) {
 
-                foreach ($userform as $value):
-                    if ($row->meta_id === $value['meta_id']) {
+                $arr_user_term = array();
+
+                foreach ( $userform as $value ) :
+                    if ( $row->meta_id === $value['meta_id'] ) {
                         $arr_user_term[] = $value['value'];
                     }
                 endforeach;
