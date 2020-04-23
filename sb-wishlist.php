@@ -55,18 +55,18 @@ if (!version_compare(PHP_VERSION, '5.4', '>=')) {
     sbws_form();
 }
 
-if (!function_exists('sbws_fail_php_version')) {
+if ( ! function_exists( 'sbws_fail_php_version' ) ) {
     function sbws_fail_php_version() {
-        $message = esc_html__('SomethingBorrowed wishlist plugin requires PHP version 5.4+, plugin is currently NOT ACTIVE. Please contact the hosting provider to upgrade the version of PHP.', 'sb-wishlist');
-        $html_message = sprintf('<div class="notice notice-error">%s</div>', wpautop($message));
-        echo wp_kses_post($html_message);
+        $message = esc_html__( 'SomethingBorrowed wishlist plugin requires PHP version 5.4+, plugin is currently NOT ACTIVE. Please contact the hosting provider to upgrade the version of PHP.', 'sb-wishlist' );
+        $html_message = sprintf( '<div class="notice notice-error">%s</div>', wpautop($message) );
+        echo wp_kses_post( $html_message );
     }
 }
 
-if (!function_exists('sbws_fail_installation_method')) {
+if ( ! function_exists( 'sbws_fail_installation_method' ) ) {
     function sbws_fail_installation_method() {
-        $message = esc_html__('SomethingBorrowed wishlist plugin is not installed correctly.', 'sb-wishlist');
-        $html_message = sprintf('<div class="notice notice-error">%s</div>', wpautop($message));
-        echo wp_kses_post($html_message);
+        $message = esc_html__( 'SomethingBorrowed wishlist plugin is not installed correctly.', 'sb-wishlist' );
+        $html_message = sprintf( '<div class="notice notice-error">%s</div>', wpautop($message) );
+        echo wp_kses_post( $html_message );
     }
 }

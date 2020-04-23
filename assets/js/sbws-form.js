@@ -204,5 +204,19 @@
         $('#save-profile span').text('Save profile');
     }
 
+    $('body').on( 'click', '.product-dislike', function( e ) {
+        var t = $( this);
+
+        e.preventDefault();
+
+        $( this).addClass("done");
+
+        //jQuery( document.body ).trigger( 'adding_to_wishlist' );
+
+        //call_ajax_add_to_wishlist( t );
+
+        return false;
+    } );
+
 
 })( jQuery );

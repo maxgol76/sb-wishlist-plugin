@@ -82,4 +82,33 @@ function wishlist_recommendation () {
     echo "<h2>Wishlist recomendation<h2>";
 }
 
+add_action( 'woocommerce_after_add_to_cart_button', 'product_dislike_button', 20 );
+
+function product_dislike_button( $extra_class = "" ) {
+
+    global $product, $yith_wcwl;
+    $product_id = method_exists( $product, 'get_id' ) ? $product->get_id() : $product->id;
+    $product_type = method_exists( $product, 'get_type' ) ? $product->get_type() : $product->product_type;
+
+
+        $tooltip      = __("Dislike", 'atelier');
+
+
+        $classes = get_option( 'yith_wcwl_use_button' ) == 'yes' ? 'class="add_to_wishlist single_add_to_wishlist button alt"' : 'class="add_to_wishlist"';
+
+
+
+    //fas fa-times
+
+        $html = '<div class="clear"></div><div class="product-dislike-button" data-toggle="tooltip" data-placement="top" title="' . $tooltip . '">';
+        $html .= '<a href="#" rel="nofollow" data-ajaxurl="#" data-product-id="' . $product_id . '" data-product-type="' . $product_type . '" class="product-dislike">';
+        $html .= '<i class="fas fa-thumbs-down"></i></a></div>';
+
+
+
+        echo wp_kses_post($html);
+    //}
+}
+
+
 

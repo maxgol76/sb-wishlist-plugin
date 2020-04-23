@@ -1068,3 +1068,51 @@ styling-profile .title {
     height: auto;
 }
 
+.product-dislike-button {
+    display: block;
+    padding: 0;
+    float: left;
+    line-height: 20px;
+    min-height: 60px;
+    margin-left: 0;
+    margin-top: 20px;
+}
+
+.product-dislike-button a {
+    display: block;
+    padding: 15px 18px;
+    background: transparent !important;
+    font-size: 24px !important;
+    height: 60px;
+    border: 2px solid #e3e3e3;
+    border-radius: 0;
+}
+
+.product-dislike-button a:hover {
+    border-color: #c68578;
+    color: #c68578;
+}
+
+.product-dislike i {
+    color: #999;
+}
+
+.product-dislike-button a:hover i {
+    color: #c68578;
+}
+
+.product-dislike-button a.done:hover {
+    border-color: #e3e3e3;
+    color: #e3e3e3;
+}
+
+.product-dislike.done i {
+    color: #e3e3e3;
+}
+
+.product-dislike-button a.done:hover i {
+    color: #e3e3e3;
+}
+
+
+
