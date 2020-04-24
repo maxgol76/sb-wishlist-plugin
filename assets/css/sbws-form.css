@@ -1086,6 +1086,7 @@ styling-profile .title {
     height: 60px;
     border: 2px solid #e3e3e3;
     border-radius: 0;
+    line-height: 1.4;
 }
 
 .product-dislike-button a:hover {

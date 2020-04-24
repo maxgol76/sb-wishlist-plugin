@@ -110,7 +110,7 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
 
            // wp_enqueue_script(sbws_init()->get_slug(), sbws_init()->get_plugin_url() . 'assets/js/sbws-scripts.js', array('jquery', 'jquery-ui-dialog', 'wp-a11y', 'wp-util'), '1.0.0', true);
 
-            wp_enqueue_script(sbws_init()->get_slug(), sbws_init()->get_plugin_url() . 'assets/js/sbws-form.js', array('jquery', 'wp-api', 'wp-a11y', 'wp-util'), '1.0.0', true);
+            wp_enqueue_script(sbws_init()->get_slug(), sbws_init()->get_plugin_url() . 'assets/js/sbws-form.js', array('jquery', 'wp-api', 'wp-a11y', 'wp-util'), '1.0.2', true);
         
             $data = array(
                 'nonce' => wp_create_nonce(self::AJAX_ACTION),
@@ -322,6 +322,7 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
 
                                     //$size = wc_get_attribute( $arr_user_terms[0] );
                                     $size = get_term( $arr_user_terms[0], 'pa_storlek' );
+                                    $size_slug = $size->slug;
                                     $size = $size->name;
 
 
@@ -342,6 +343,7 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
 
                                     //$size = wc_get_attribute( $arr_user_terms[0] );
                                     $size = get_term( $arr_user_terms[0], 'pa_storlek' );
+                                    $size_slug = $size->slug;
                                     $size = $size->name;
 
                                     $recommendations = self::get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms );
@@ -360,6 +362,7 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
 
                                     //$size = wc_get_attribute( $arr_user_terms[0] );
                                     $size = get_term( $arr_user_terms[0], 'pa_storlek' );
+                                    $size_slug = $size->slug;
                                     $size = $size->name;
 
                                     $recommendations = self::get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms );
@@ -391,14 +394,14 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                                         <li class="list-item">
                                             <div class="list-item-inner">
                                                 <div class="sbws-col" data-col="image">
-                                                    <a href="<?php echo esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) ?>">
+                                                    <a href="<?php echo esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) ?>?size=<?php echo $size_slug; ?>">
                                                         <?php echo wp_kses_post( $product->get_image() ); //$img; ?>
                                                     </a>
                                                 </div>
 
                                                <!-- <div class="sbws-col" data-col="sku"><?php /*echo $item->get_sku(); */?></div>-->
                                                 <div class="sbws-col" data-col="name">
-                                                    <a href="<?php echo esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) ?>">
+                                                    <a href="<?php echo esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) ?>?size=<?php echo $size_slug; ?>">
                                                         <?php echo $data['name']; ?>
                                                     </a>
                                                 </div>
@@ -411,7 +414,11 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                                                 </div>
                                                 <div class="sbws-col" data-col="button">
                                                     <?php if( isset( $stock_status ) && $stock_status != 'out-of-stock'&& !is_admin() ): ?>
-                                                        <?php woocommerce_template_loop_add_to_cart(); ?>
+                                                        <?php //woocommerce_template_loop_add_to_cart(); ?>
+                                                        <div class="add-to-cart-wrap" data-placement="top">
+                                                            <a href="<?php echo esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) ?>?size=<?php echo $size_slug; ?>" data-product_id="<?php echo esc_attr( $item->id ); ?>"  class="button product_type_simple add_to_cart_button product_type_simple" data-default_icon="sf-icon-add-to-cart add_to_cart button alt" data-loading_text="Adding..." data-added_text="Item added" data-added_short="Added" aria-label="Read more about “Part Two - Raja”" rel="nofollow"> Lägg till i kundvagn</a>
+                                                        </div>
+
                                                     <?php endif ?>
                                                 </div>
                                             </div>
