@@ -205,17 +205,39 @@
     }
 
     $('body').on( 'click', '.product-dislike', function( e ) {
-        var t = $( this);
+        var t = $(this);
 
         e.preventDefault();
 
-        $( this).addClass("done");
 
-        //jQuery( document.body ).trigger( 'adding_to_wishlist' );
+        //console.log( t.data( 'product-id' ) );
 
-        //call_ajax_add_to_wishlist( t );
 
-        return false;
+        var product_id = t.data( 'product-id' );
+
+        //alert( product_id );
+
+        var request,
+        data = {
+              product_id: product_id
+            };
+
+        //  console.log( data );
+        //request = wp.ajax.post(_sbWishlist.action + '_submit_form',{
+        request = wp.ajax.post( _sbWishlist.action + '_product_dislike',{
+            data: data
+        });
+        request.done( function(response){
+
+            console.log( response );
+
+            if( response.success ){
+                t.addClass("done");
+
+            }
+        });
+
+
     } );
 
 

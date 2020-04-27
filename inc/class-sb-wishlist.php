@@ -136,6 +136,17 @@ if ( ! class_exists( 'SB_Wishlist' ) ) :
                 PRIMARY KEY (id))
                 $charset";
             dbDelta( $sql_form );
+
+            $table_dislike_list = $wpdb->prefix . 'sbws_dislike_list';
+            $sql_form = "CREATE TABLE $table_dislike_list (
+                id BIGINT NOT NULL AUTO_INCREMENT,
+                prod_id BIGINT NOT NULL,
+                quantity BIGINT NOT NULL,
+                user_id BIGINT NOT NULL,                
+                dateadded timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id))
+                $charset";
+            dbDelta( $sql_form );
             
             self::set_plugin_state( true );
         }

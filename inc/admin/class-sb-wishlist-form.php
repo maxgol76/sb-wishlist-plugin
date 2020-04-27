@@ -42,9 +42,11 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
             add_action('wp_ajax_' . self::AJAX_ACTION . '_get_form', array($this, 'ajax_get_form'));
             add_action('wp_ajax_' . self::AJAX_ACTION . '_get_fields', array($this, 'ajax_get_fields'));
             add_action('wp_ajax_' . self::AJAX_ACTION . '_submit_form', array($this, 'ajax_submit_form'));
+            add_action('wp_ajax_' . self::AJAX_ACTION . '_product_dislike', array($this, 'ajax_product_dislike'));
             add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_get_form', array($this, 'ajax_get_form'));
             add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_get_fields', array($this, 'ajax_get_fields'));
             add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_submit_form', array($this, 'ajax_submit_form'));
+            add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_product_dislike', array($this, 'ajax_product_dislike'));
 
             
             add_action('wp_footer', array($this, 'render_templates'),21);
@@ -632,6 +634,52 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
             //wp_send_json_success(array('success' => true));
 
             wp_send_json_success( $response );
+        }
+
+        public function ajax_product_dislike(){
+
+
+            /* if ( ! check_ajax_referer(self::AJAX_ACTION, 'nonce', false ) ) {
+                 status_header( 400);
+                 wp_send_json_error('bad_nonce');
+             } elseif ( 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+                 status_header( 405);
+                 wp_send_json_error( 'bad_method' );
+             }*/
+
+            if ( is_user_logged_in() ) {
+                $user_id = get_current_user_id();
+
+
+                $data = $_POST['data'];
+
+                 global $wpdb;
+                 $table = $wpdb->prefix . 'sbws_dislike_list';
+                 $wpdb->insert( $table, array( 'prod_id' => $data['product_id'], 'user_id' => $user_id , 'dateadded' => date( 'Y-m-d H:i:s') ) );
+
+               // $response['data'] = $user_id; //$data['product_id'];
+                $response['success'] = true;
+
+
+                wp_send_json_success($response);
+            } else {
+                $response['success'] = false;
+            }
+        }
+
+
+        public function check_if_dislike_is_set( $userID, $product_id ){
+            global $wpdb;
+            $table = $wpdb->prefix . 'sbws_dislike_list';
+            $result = $wpdb->get_var("SELECT id FROM $table WHERE user_id = $userID AND prod_id = $product_id");
+
+            if ( ! empty( $result ) ) {
+                return true;
+            }
+            else {
+                return false;
+            }
+
         }
 
 

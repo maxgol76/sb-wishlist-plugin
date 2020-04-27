@@ -91,6 +91,16 @@ function product_dislike_button( $extra_class = "" ) {
     $product_type = method_exists( $product, 'get_type' ) ? $product->get_type() : $product->product_type;
 
 
+
+    /*if ( is_user_logged_in() ) {
+        $user_id = get_current_user_id();
+
+        if ( SB_Wishlist_Form::check_if_dislike_is_set( $user_id, $product_id ) ) {
+
+        }
+    }*/
+
+
         $tooltip      = __("Dislike", 'atelier');
 
 
