@@ -110,9 +110,7 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
         public function form_scripts(){
             wp_enqueue_style('sbws-form', sbws_init()->get_plugin_url() . 'assets/css/sbws-form.css', array(), '1.0.0');
 
-           // wp_enqueue_script(sbws_init()->get_slug(), sbws_init()->get_plugin_url() . 'assets/js/sbws-scripts.js', array('jquery', 'jquery-ui-dialog', 'wp-a11y', 'wp-util'), '1.0.0', true);
-
-            wp_enqueue_script(sbws_init()->get_slug(), sbws_init()->get_plugin_url() . 'assets/js/sbws-form.js', array('jquery', 'wp-api', 'wp-a11y', 'wp-util'), '1.0.2', true);
+            wp_enqueue_script(sbws_init()->get_slug(), sbws_init()->get_plugin_url() . 'assets/js/sbws-form.js', array('jquery', 'wp-api', 'wp-a11y', 'wp-util'), '1.0.3', true);
         
             $data = array(
                 'nonce' => wp_create_nonce(self::AJAX_ACTION),
@@ -142,35 +140,9 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                 $result = self::add_new_user($order);
             }
             if ( $is_subscription && sbws_init()->get_option( 'enable_form' ) ) { ?>
-                <!--<div class="sbws-form" id='sbws-form'>-->
 
                         <div class="sbws-form-wrap">
-                            <!-- in this wrap insert page builder -->
                         </div>
-                        <!--<div class="sbws-form-add-step">
-                            <a href="#" action-type="add-step" title="<?php /*_e( 'Add New Step', 'sb-wishlist' ); */?>" class="sbws-form-add-step-button">
-                                Add new step
-                            </a>
-                        </div>-->
-
-                    <!--<form class="sbws-form-wrap" method="POST">
-                        <input type="hidden" value="<?php /*echo $order->customer_id; */?>" name="sb_user_id" />
-                        <?php /*//require( sbws_init()->get_plugin_path() . 'woocommerce/myaccount/styling_preferences.php' );
-
-                        //include_once $plugin_path . 'woocommerce/myaccount/styling_preferences.php';
-                        */?>
-
-                    </form>
-                    <div class="sbws-form-controls">
-                        <div class="sbws-form-controls-points">
-                            <div class='progress'></div>
-                        </div>
-                        <div class="sbws-form-controls-buttons">
-                            <button type="button" class="btn btn-skip">Skip</button>
-                            <button type="button" class="btn btn-next">Next</button>
-                        </div>
-                    </div>-->
-                <!--</div>-->
         <?php
             }
         }
@@ -212,30 +184,21 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
         private function get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms ){
 
             global $wpdb;
-            //$table = $wpdb->prefix . 'sbws_formmeta';
-            //$fields = $wpdb->get_results("SELECT meta_id, meta_category, meta_connected FROM $table WHERE meta_type = 'checkbox' ORDER BY meta_id ASC");
 
+            $ids = self::get_dislike_products( $user_id );
 
-            /*$cats = array_map(array($this, 'get_cats'), $fields);
-            /*$cats = array();
-            foreach ($fields as $f) {
-                array_push($cats, [
-                    'taxonomy' => 'product_cat',
-                    'terms' => intval($f->meta_connected),
-                ]);
-            }*/
-
-           /* echo "<pre>";
-            var_dump($arr_terms_category);
-            echo "</pre>";*/
+            $exclude_ids = array();
+            foreach ( $ids as $exclude_id ) {
+                $exclude_ids[] = $exclude_id->prod_id;
+            }
 
             $args = array(
-                /*'post_type' => 'product',*/
-                /*'posts_per_page' => '3',*/
+                'post_type' => 'product',
                 'limit' => 3,
                 'status' => 'publish',
                 'orderby' => 'date',
                 'order' => 'DESC',
+                'post__not_in' => $exclude_ids,
                 //'parent' => $arr_terms_category,
                 //'category' => array( 'overdelar' ), // 'overdelar' (id=109) , 'underdelar' (id=110) , 'helkropp' (id=111)
 
@@ -248,14 +211,14 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                         array(
                             'taxonomy' => 'product_cat',
                             'field' => 'id',
-                            'terms' => $arr_terms_category, //array( 109 ),  // overdelar
+                            'terms' => $arr_terms_category,
                             'include_children' => true,
                             'operator' => 'IN'
                         ),
                         array(
                             'taxonomy' => 'pa_storlek',
                             'field' => 'id',
-                            'terms' => $arr_user_terms, //array( 24, 26 ), // Size: S and M
+                            'terms' => $arr_user_terms,
                             'operator' => 'IN'
                         )
                     ),
@@ -283,10 +246,6 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                         } else {
                             $user_id = $userID;
                         }
-
-                        /*echo "<pre>";
-                        var_dump( $user_id );
-                        echo "</pre>";*/
 
 
                         $fields = SB_Wishlist_Admin::get_user_fields();  /* Gets array of objects from the sbws_formmeta table*/
@@ -611,14 +570,6 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
         }
         public function ajax_submit_form(){
 
-           /* if ( ! check_ajax_referer(self::AJAX_ACTION, 'nonce', false ) ) {
-                status_header( 400);
-                wp_send_json_error('bad_nonce');
-            } elseif ( 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
-                status_header( 405);
-                wp_send_json_error( 'bad_method' );
-            }*/
-
             $data = $_POST['data'];
 
             $user = array_shift( $data );
@@ -631,7 +582,6 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
             
             $response['form'] = $data;
             $response['success'] = true;
-            //wp_send_json_success(array('success' => true));
 
             wp_send_json_success( $response );
         }
@@ -639,32 +589,26 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
         public function ajax_product_dislike(){
 
 
-            /* if ( ! check_ajax_referer(self::AJAX_ACTION, 'nonce', false ) ) {
-                 status_header( 400);
-                 wp_send_json_error('bad_nonce');
-             } elseif ( 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
-                 status_header( 405);
-                 wp_send_json_error( 'bad_method' );
-             }*/
-
             if ( is_user_logged_in() ) {
                 $user_id = get_current_user_id();
 
-
                 $data = $_POST['data'];
 
-                 global $wpdb;
-                 $table = $wpdb->prefix . 'sbws_dislike_list';
-                 $wpdb->insert( $table, array( 'prod_id' => $data['product_id'], 'user_id' => $user_id , 'dateadded' => date( 'Y-m-d H:i:s') ) );
+                $dislike_set = SB_Wishlist_Form::check_if_dislike_is_set( $user_id, $data['product_id'] );
 
-               // $response['data'] = $user_id; //$data['product_id'];
+                if ( ! $dislike_set ) {
+                    global $wpdb;
+                    $table = $wpdb->prefix . 'sbws_dislike_list';
+                    $wpdb->insert( $table, array( 'prod_id' => $data['product_id'], 'user_id' => $user_id , 'dateadded' => date( 'Y-m-d H:i:s') ) );
+                }
+
                 $response['success'] = true;
 
-
-                wp_send_json_success($response);
             } else {
                 $response['success'] = false;
             }
+
+            wp_send_json_success($response);
         }
 
 
@@ -679,6 +623,15 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
             else {
                 return false;
             }
+        }
+
+        private function get_dislike_products( $userID ){
+            global $wpdb;
+            $table = $wpdb->prefix . 'sbws_dislike_list';
+
+            $result = $wpdb->get_results("SELECT prod_id FROM $table WHERE user_id = $userID");
+
+            return $result;
 
         }
 

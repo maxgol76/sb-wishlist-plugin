@@ -92,26 +92,21 @@ function product_dislike_button( $extra_class = "" ) {
 
 
 
-    /*if ( is_user_logged_in() ) {
+    if ( is_user_logged_in() ) {
         $user_id = get_current_user_id();
 
-        if ( SB_Wishlist_Form::check_if_dislike_is_set( $user_id, $product_id ) ) {
+        $dislike_set = SB_Wishlist_Form::check_if_dislike_is_set( $user_id, $product_id );
 
+        if ( ! $dislike_set ) {
+            $tooltip = __( "Dislike",  'atelier' );
+        } else {
+            $tooltip = __( "Disliked", 'atelier' );
         }
-    }*/
+    }
 
-
-        $tooltip      = __("Dislike", 'atelier');
-
-
-        $classes = get_option( 'yith_wcwl_use_button' ) == 'yes' ? 'class="add_to_wishlist single_add_to_wishlist button alt"' : 'class="add_to_wishlist"';
-
-
-
-    //fas fa-times
 
         $html = '<div class="clear"></div><div class="product-dislike-button" data-toggle="tooltip" data-placement="top" title="' . $tooltip . '">';
-        $html .= '<a href="#" rel="nofollow" data-ajaxurl="#" data-product-id="' . $product_id . '" data-product-type="' . $product_type . '" class="product-dislike">';
+        $html .= '<a href="#" rel="nofollow" data-ajaxurl="#" data-product-id="' . $product_id . '" data-product-type="' . $product_type . '" class="product-dislike ' . ( $dislike_set ? 'done' : '' )  . '">';
         $html .= '<i class="fas fa-thumbs-down"></i></a></div>';
 
 

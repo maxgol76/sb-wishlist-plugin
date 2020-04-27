@@ -181,8 +181,6 @@
                     }
                 }
 
-                   //  console.log( data );
-
                  request = wp.ajax.post(_sbWishlist.action + '_submit_form',{
                      nonce: _sbWishlist.nonce,
                      data: data
@@ -209,21 +207,13 @@
 
         e.preventDefault();
 
-
-        //console.log( t.data( 'product-id' ) );
-
-
         var product_id = t.data( 'product-id' );
-
-        //alert( product_id );
 
         var request,
         data = {
               product_id: product_id
             };
 
-        //  console.log( data );
-        //request = wp.ajax.post(_sbWishlist.action + '_submit_form',{
         request = wp.ajax.post( _sbWishlist.action + '_product_dislike',{
             data: data
         });
@@ -233,10 +223,10 @@
 
             if( response.success ){
                 t.addClass("done");
+                $(".product-dislike-button").attr( "data-original-title" , "Disliked" );
 
             }
         });
-
 
     } );
 
@@ -252,21 +242,16 @@
             for (i = 0; i < sURLVariables.length; i++) {
                 sParameterName = sURLVariables[i].split('=');
 
-                if (sParameterName[0] === sParam) {
+                if ( sParameterName[0] === sParam ) {
                     return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
                 }
             }
         };
 
-
         var size = getUrlParameter( 'size' );
 
         if ( size ) {
-
             $("#pa_storlek").val( size );
-
-            //alert( 'size = ' + size);
-            //$(".traffic-plan-" + plan ).trigger("click");
         }
     });
 

@@ -1102,17 +1102,21 @@ styling-profile .title {
     color: #c68578;
 }
 
+.product-dislike-button a.done {
+    border-color: #c68578;
+}
+
 .product-dislike-button a.done:hover {
-    border-color: #e3e3e3;
-    color: #e3e3e3;
+    border-color: #c68578;
+    color: #c68578;
 }
 
 .product-dislike.done i {
-    color: #e3e3e3;
+    color: #c68578;
 }
 
 .product-dislike-button a.done:hover i {
-    color: #e3e3e3;
+    color: #c68578;
 }
 
 
