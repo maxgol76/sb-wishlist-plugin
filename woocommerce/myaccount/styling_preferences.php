@@ -13,9 +13,6 @@ if ( wcs_user_has_subscription( $user->ID, '', 'active' ) ) :
 
 <div class="styling-profile">
 
-    <!--<h3 class="title"><?php /*_e( 'Your styling profile', 'sb-wishlist' ); */?></h3>
-    <p><?php /*_e( 'This is used for automatically recommending items to you!', 'sb-wishlist' ); */?></p>-->
-
 
     <form class="sbws-form-styling" method="POST">
         <input type="hidden" value="<?php echo $user->ID; ?>" name="sb_user_id" />
@@ -47,7 +44,15 @@ if ( wcs_user_has_subscription( $user->ID, '', 'active' ) ) :
 
                         <?php if( $row->meta_type === 'checkbox' || $row->meta_type === 'radiobox' ) :
 
-                            $cats = get_terms( $row->meta_category, array( 'orderby' => 'name',  'order' => 'asc', 'hide_empty' => false ) );
+                          //$cats = get_terms( $row->meta_category, array( 'orderby' => 'name',  'order' => 'asc', 'hide_empty' => false ) );
+
+                            $cats_id = unserialize( $row->meta_category_data );
+                            $cats = get_terms( array(
+                                'orderby'       => 'name',
+                                'order'         => 'ASC',
+                                'include'       => $cats_id,
+                                'hide_empty' => false,
+                            ) );
 
                         ?>
                             <select class="field-options-select"  name="field_option_<?php echo $row->meta_id ?>" <?php if( $row->meta_type === 'checkbox' ) echo 'multiple="multiple"'; ?>>
@@ -57,6 +62,7 @@ if ( wcs_user_has_subscription( $user->ID, '', 'active' ) ) :
                             </select>
                         <?php elseif( $row->meta_type === 'imagebox' ) :
                             $items = unserialize( $row->meta_category_data );
+
 
                         ?>
                             <select class="field-options-select"  name="field_option_<?php echo $row->meta_id ?>" <?php if( $row->meta_type === 'checkbox' ) echo 'multiple="multiple"'; ?>>
