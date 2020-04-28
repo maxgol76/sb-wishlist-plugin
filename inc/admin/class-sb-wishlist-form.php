@@ -281,7 +281,6 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                                     $cat = get_term_by( 'slug', 'overdelar', 'product_cat' );
                                     $arr_terms_category[] = $cat->term_id;
 
-                                    //$size = wc_get_attribute( $arr_user_terms[0] );
                                     $size = get_term( $arr_user_terms[0], 'pa_storlek' );
                                     $size_slug = $size->slug;
                                     $size = $size->name;
@@ -290,8 +289,6 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                                     $recommendations = self::get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms );
 
                                     if ( ! empty( $recommendations ) ) : ?>
-
-                                    <p><br /></p>
 
                                     <h3 class="field-title"><?php _e( 'Top recommendations', 'sb-wishlist' ); ?></h3>
 
@@ -302,7 +299,6 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                                     $cat = get_term_by( 'slug', 'underdelar', 'product_cat' );
                                     $arr_terms_category[] = $cat->term_id;
 
-                                    //$size = wc_get_attribute( $arr_user_terms[0] );
                                     $size = get_term( $arr_user_terms[0], 'pa_storlek' );
                                     $size_slug = $size->slug;
                                     $size = $size->name;
@@ -310,8 +306,6 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                                     $recommendations = self::get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms );
 
                                     if ( ! empty( $recommendations ) ) : ?>
-
-                                        <p><br /></p>
 
                                         <h3 class="field-title"><?php _e( 'Bottom recommendations', 'sb-wishlist' ); ?></h3>
 
@@ -321,7 +315,6 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                                     $cat = get_term_by( 'slug', 'helkropp', 'product_cat' );
                                     $arr_terms_category[] = $cat->term_id;
 
-                                    //$size = wc_get_attribute( $arr_user_terms[0] );
                                     $size = get_term( $arr_user_terms[0], 'pa_storlek' );
                                     $size_slug = $size->slug;
                                     $size = $size->name;
@@ -330,14 +323,11 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
 
                                     if ( ! empty( $recommendations ) ) : ?>
 
-                                        <p><br /></p>
-
                                     <h3 class="field-title"><?php _e( 'Full body recommendations', 'sb-wishlist' ); ?></h3>
 
                                     <?php endif;
                                 }
 
-                                //$recommendations = self::get_suggested_product( $user_id );
 
                                 if ( ! empty( $recommendations ) ) : ?>
 
@@ -349,8 +339,7 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                                         $product = new WC_Product( $item->id );
                                         $availability = $product->get_availability();
                                         $stock_status = isset( $availability['class'] ) ? $availability['class'] : false;
-
-                                        //$img = wp_get_attachment_image( $data['image_id'], 'thumbnail' ); ?>
+                                         ?>
 
                                         <li class="list-item">
                                             <div class="list-item-inner">
@@ -391,11 +380,12 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
 
                             endif;
 
-                        endforeach;  ?>
+                        endforeach;
 
-
-
-
+                        if ( is_admin() ) {
+                            self::get_dislike_list($user_id);
+                        }
+                        ?>
                 </div>
             </ul>
                 <?php if ( ! is_admin()) : ?>
@@ -403,10 +393,86 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
                 <h3 class="field-title"><?php _e( 'Wishlist', 'sb-wishlist' ); ?></h3>
                 <?php endif; ?>
 
-
             <?php endif;
 
         }
+
+
+        public function get_dislike_list( $userID ){
+            global $product;
+
+                ?>
+            <h3 class="field-title"><?php _e( 'Disliked items', 'sb-wishlist' ); ?></h3>
+                    <?php
+
+                $ids = self::get_dislike_products( $userID );
+
+                if ( ! empty( $ids ) ) :
+
+                    $include_ids = array();
+                    foreach ( $ids as $include_id ) {
+                        $include_ids[] = $include_id->prod_id;
+                    }
+
+
+                    $args = array(
+                        'post_type' => 'product',
+                        'limit' => 5,
+                        'status' => 'publish',
+                        'orderby' => 'date',
+                        'order' => 'DESC',
+                        'include' => $include_ids,
+                    );
+
+                    $dislike_products = wc_get_products( $args );
+
+                    if ( ! empty( $dislike_products ) ) : ?>
+
+                        <ul class="sbws-recommendation-list">
+                            <?php foreach ( $dislike_products as $item ):
+
+                                $data = $item->get_data();
+
+                                $product = new WC_Product( $item->id );
+
+                                 ?>
+
+                                <li class="list-item">
+                                    <div class="list-item-inner">
+                                        <div class="sbws-col" data-col="image">
+                                            <a href="<?php echo esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) ?>">
+                                                <?php echo wp_kses_post( $product->get_image() ); //$img; ?>
+                                            </a>
+                                        </div>
+
+                                        <div class="sbws-col" data-col="name">
+                                            <a href="<?php echo esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) ?>">
+                                                <?php echo $data['name']; ?>
+                                            </a>
+                                        </div>
+                                        <div class="sbws-col" data-col="size">
+                                        </div>
+                                        <div class="sbws-col" data-col="button">
+                                        </div>
+                                    </div>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul> <?php
+
+                    endif;
+
+                else : ?>
+
+                    <p></p>
+                    <h4 class="field-title"><?php _e( 'No disliked items yet', 'sb-wishlist' ); ?></h4>
+
+                <?php
+
+                endif;
+
+        }
+
+
 
         private function add_new_user($order){
             $userID = $order->customer_id;

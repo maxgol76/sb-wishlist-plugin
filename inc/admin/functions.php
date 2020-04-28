@@ -64,55 +64,39 @@ function get_preference($data, $row){
 add_action( 'woocommerce_thankyou', 'SB_Wishlist_Form::get_wishlist_styling_form', 20 );
 
 
-//add_action( 'yith_wcwl_before_wishlist', 'wishlist_dropdown'  );
-
-function wishlist_dropdown () {
-    //printf( '<div class="bag-product clearfix"><p>%1$s</p></div>', esc_html( 'recommendation' ) );
-    //return '<div class="bag-product clearfix"><p>Recommendation</p></div>';
-    echo ('<p>Recommendation</p>' );
-}
-
-// SB_Wishlist_Admin::get_suggested_list
-
 add_action( 'yith_wcwl_before_wishlist_share', 'wishlist_recommendation'  );
 
 add_action( 'yith_wcwl_before_wishlist_form', 'SB_Wishlist_Form::get_suggested_list'  );
 //add_action( 'yith_wcwl_before_wishlist_form', 'wishlist_recommendation'  );
-function wishlist_recommendation () {
-    echo "<h2>Wishlist recomendation<h2>";
-}
 
 add_action( 'woocommerce_after_add_to_cart_button', 'product_dislike_button', 20 );
 
 function product_dislike_button( $extra_class = "" ) {
 
-    global $product, $yith_wcwl;
+    global $product;
     $product_id = method_exists( $product, 'get_id' ) ? $product->get_id() : $product->id;
     $product_type = method_exists( $product, 'get_type' ) ? $product->get_type() : $product->product_type;
-
-
 
     if ( is_user_logged_in() ) {
         $user_id = get_current_user_id();
 
-        $dislike_set = SB_Wishlist_Form::check_if_dislike_is_set( $user_id, $product_id );
+        $dislike_set = SB_Wishlist_Form::check_if_dislike_is_set($user_id, $product_id);
 
-        if ( ! $dislike_set ) {
-            $tooltip = __( "Dislike",  'atelier' );
+        if (!$dislike_set) {
+            $tooltip = __("Dislike", 'atelier');
         } else {
-            $tooltip = __( "Disliked", 'atelier' );
+            $tooltip = __("Disliked", 'atelier');
         }
-    }
 
 
         $html = '<div class="clear"></div><div class="product-dislike-button" data-toggle="tooltip" data-placement="top" title="' . $tooltip . '">';
-        $html .= '<a href="#" rel="nofollow" data-ajaxurl="#" data-product-id="' . $product_id . '" data-product-type="' . $product_type . '" class="product-dislike ' . ( $dislike_set ? 'done' : '' )  . '">';
+        $html .= '<a href="#" rel="nofollow" data-ajaxurl="#" data-product-id="' . $product_id . '" data-product-type="' . $product_type . '" class="product-dislike ' . ($dislike_set ? 'done' : '') . '">';
         $html .= '<i class="fas fa-thumbs-down"></i></a></div>';
 
 
-
         echo wp_kses_post($html);
-    //}
+    }
+
 }
 
 

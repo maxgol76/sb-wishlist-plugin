@@ -674,8 +674,9 @@ a, button{
     font-weight: 600;
 }
 .sbws-users-list .list-item-detailed .item-right{
-    
-    flex: 1 0 100%;
+
+    padding-left: 1%;
+    flex: 1 1 600px;
 }
 .sbws-users-list .sbws-recommendation-list .list-item,
 .sbws-users-list .sbws-recommendation-list .list-item-inner{
@@ -703,6 +704,6 @@ a, button{
 }
 @media(min-width:768px){
     .sbws-users-list .list-item-detailed .item-left{
-        flex: 0 0 300px;
+        flex: 1 1 200px;
     }
 }
