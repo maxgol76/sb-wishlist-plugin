@@ -230,6 +230,38 @@
 
     } );
 
+    $('body').on( 'click', '.product-details .product-like', function( e ) {
+        var t = $(this);
+
+        e.preventDefault();
+
+        t.addClass("done");
+
+        $(this).find('i').toggleClass('done');
+
+        var product_id = t.data( 'product-id' );
+
+        var request,
+        data = {
+              product_id: product_id
+            };
+
+        request = wp.ajax.post( _sbWishlist.action + '_product_like',{
+            data: data
+        });
+        request.done( function(response){
+
+            console.log( response );
+
+            if( response.success ){
+                //t.addClass("done");
+                //$(".product-dislike-button").attr( "data-original-title" , "Disliked" );
+
+            }
+        });
+
+    } );
+
 
     $( document ).ready( function() {
 

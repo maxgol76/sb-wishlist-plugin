@@ -1119,5 +1119,20 @@ styling-profile .title {
     color: #c68578;
 }
 
+.product-details .product-like .done {
+    font-weight: 900 !important;
+}
+.product-details .product-like {
+    color: #c68578;
+    font-size: 2rem !important;
+    order: 2;
+    margin: 5px 0 0;
+}
+
+.dislike-icon img {
+    display: inline-block !important;
+    margin: 0 10px 7px 0 !important;
+}
+
 
 

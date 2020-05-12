@@ -99,5 +99,31 @@ function product_dislike_button( $extra_class = "" ) {
 
 }
 
+function wishlist ( $User1d ) {
+    return SB_Wishlist_Admin::get_suggested_list_admin( $User1d );
+}
+
+add_action( 'woocommerce_after_shop_loop_item_title', 'product_details_add', 20 );
+
+function product_details_add(){
+
+    global $product;
+
+    $product_id = method_exists( $product, 'get_id' ) ? $product->get_id() : $product->id;
+
+    $user_id = get_current_user_id();
+
+    $like_set = SB_Wishlist_Form::check_if_like_is_set( $user_id, $product_id );
 
 
+    $str_out = '<div style="float: right;"><a href="#" class="dislike-icon" ><img src="' . SBWS_URI . '/assets/img/cross.svg" class=""  style="width: 17px;" /></a>';
+
+    $str_out .= '<a href="#" class="product-like" data-product-id="' . $product_id . '"><i class="far fa-heart ' . ($like_set ? 'done' : '') . '"></i></a></div>';
+
+
+    echo $str_out;
+}
+
+
+
+//<i class="far fa-heart"></i>

@@ -499,5 +499,32 @@
     $('.sbws-wishlist').on('click', '.show-variations', function(e){
         e.preventDefault();
         $(this).closest('.list-item-inner').next('.list-item-variations').stop().slideToggle(500);
-    })
+    });
+
+
+    $('body').on('change', '.filter-customer', function(e){
+        e.preventDefault();
+       // alert( $(this).val() );
+
+        var id = $(this).val();
+
+        var request,
+            data = {
+                user_id: id
+            };
+
+        request = wp.ajax.post( _sbWishlist.action + '_change_filter_customer',{
+            nonce: _sbWishlist.nonce,
+            data: data
+        });
+
+        request.done( function (response ){
+
+            $('.sbws-users-list').html( response.html );
+        });
+
+
+    });
+
+
 })( jQuery );

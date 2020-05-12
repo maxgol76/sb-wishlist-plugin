@@ -3,8 +3,26 @@
     <?php 
     $users  = SB_Wishlist_Admin::get_subscribed_users(); /* array of objects from the sbws_users    table*/
     $fields = SB_Wishlist_Admin::get_user_fields();      /* array of objects from the sbws_formmeta table*/
-
     ?>
+
+    <div class="input-customer-group">
+
+            <select class="filter-customer">
+
+                <option value="0">Filter Customer</option>
+
+                <?php foreach( $users as $user ) : ?>
+                    <?php $usermeta = get_user_meta( $user->user_id );
+                          $userdata = get_userdata( $user->user_id );
+                    ?>
+
+                    <option value="<?php echo $user->user_id; ?>"><?php _e( $usermeta['first_name'][0] . " " . $usermeta['last_name'][0] . " ( " .$userdata->user_email . " )", 'sb-wishlist' ); ?></option>
+                <?php endforeach; ?>
+
+            </select>
+    </div>
+
+
     <ul class="sbws-users-list">
     <?php foreach ( $users as $user ) :
         $userdata = get_userdata( $user->user_id );  /* Gets a WP_User object that contains all the data for the current user */

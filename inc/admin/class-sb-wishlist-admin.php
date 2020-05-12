@@ -62,6 +62,10 @@ if (!class_exists('SB_Wishlist_Admin') && class_exists('SB_Wishlist')) :
             add_action('wp_ajax_' . self::AJAX_ACTION . '_save_selected_options', array($this, 'ajax_save_selected_options'));
             
             add_action('wp_ajax_' . self::AJAX_ACTION . '_add_image_options', array($this, 'ajax_add_image_options'));
+
+            add_action('wp_ajax_' . self::AJAX_ACTION . '_change_filter_customer', array($this, 'ajax_change_filter_customer'));
+            add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_change_filter_customer', array($this, 'ajax_change_filter_customer'));
+
             add_action('wp_ajax_' . self::AJAX_ACTION . '_save_image_options', array($this, 'ajax_save_image_options'));
             
             add_action('wp_ajax_' . self::AJAX_ACTION . '_save_text_options', array($this, 'ajax_save_text_options'));
@@ -390,7 +394,7 @@ if (!class_exists('SB_Wishlist_Admin') && class_exists('SB_Wishlist')) :
                 'settings' => __('Settings', 'sb-wishlist'),
                 'form' => __('Form layout', 'sb-wishlist'),
                 'styling' => __('Styling variables', 'sb-wishlist'),
-                //'wishlist' => __('Wishlist', 'sb-wishlist'),
+                'wishlist' => __('Wishlist', 'sb-wishlist'),
                 'users' => __('Users', 'sb-wishlist'),
                 //'analytics' => __('Analytics', 'sb-wishlist'),
                 //'export' => __('Export data', 'sb-wishlist'),
@@ -896,5 +900,190 @@ if (!class_exists('SB_Wishlist_Admin') && class_exists('SB_Wishlist')) :
                 'terms' => intval($f->meta_connected),
             );
         }
+
+        public function ajax_change_filter_customer(){
+
+            /*if (!check_ajax_referer(self::AJAX_ACTION, 'nonce', false)) {
+                status_header(400);
+                wp_send_json_error('bad_nonce');
+            } elseif ('POST' !== $_SERVER['REQUEST_METHOD']) {
+                status_header(405);
+                wp_send_json_error('bad_method');
+            }*/
+
+            $data    = $_POST['data'];
+            $user_id = $data['user_id'];
+
+           $json['html'] = wishlist ( $user_id  );  // self::get_suggested_list_admin( $user_id );    //'<h3>New list fo User Id ' . $user_id . '</h3>' ; //SB_Wishlist_Form::get_suggested_list2( $user_id );
+
+            $json['success'] = true;
+
+            wp_send_json_success( $json );
+        }
+
+        public function get_suggested_list_admin( $userID ){
+            global $product, $woocommerce;
+
+            $str_out = '';
+
+            $user_id = $userID;
+
+            $userd = get_userdata( $user_id );
+
+            $userdata = SB_Wishlist_Form::get_current_user( $user_id );
+            $userform = unserialize( $userdata[0]->user_data );
+            $usermeta = get_user_meta( $user_id );
+
+            $fields = self::get_user_fields();
+
+            //$str_out .= '<ul class="sbws-users-list">';
+            $str_out .= '<li class="list-item">';
+            $str_out .= '<div class="list-item-inner">';
+            $str_out .= '<div class="sbws-col">';
+            $str_out .= __( $usermeta['first_name'][0] . " " . $usermeta['last_name'][0] . " ( " .$userd->user_email . " )", 'sb-wishlist' );
+            $str_out .= '</div>';
+            //$str_out .= '<div class="sbws-col"><a class="show-variations button-secondary">Show info</a></div>';
+            $str_out .= '</div>';
+
+            $str_out .= '<div class="list-item-detailed">';
+            $str_out .= '<div class="item-left">';
+            $str_out .= '<h3>' . __( 'Profile from Survey', 'sb-wishlist' ) . '</h3>';
+                     if ( ! empty ( $userdata ) ) :
+                         foreach ( $fields as $row ):
+                             if( $row->meta_type === 'imagebox' ) {
+                                $items = unserialize( $row->meta_category_data );
+                            }
+                         $str_out .= '<div class="item-row">';
+                         $str_out .= '<h4 class="field-title">' . $row->meta_name . '</h4>';
+                         $str_out .= '<div class="field-value">';
+                                 foreach ( $userform as $value ):
+                                    if ( $row->meta_id === $value['meta_id'] && $row->meta_type == 'checkbox' ) {
+                                       $term = get_term( $value['value'] );
+                                        $str_out .= $term->name . ' ';
+                                    } elseif ( $row->meta_id === $value['meta_id'] && $row->meta_type == 'imagebox' ) {
+
+                                        foreach( $items as $item ) :
+
+                                        if ( $item['cat_id'] == $value['value'] ) {
+                                            $str_out .= $item['title'];
+                                        }
+                                        endforeach;
+                                        /*$term = get_term( $value['value'] );
+                                        echo $term->name . ' ';*/
+                                    } elseif ( $row->meta_id === $value['meta_id'] && $row->meta_type == 'yes_or_no' ) {
+                                        $str_out .= $value['value'] === '1' ? 'Yes' : 'No';
+                                    } elseif ( $row->meta_id === $value['meta_id'] && $row->meta_type == 'textbox' ) {
+                                        $str_out .= $value['value'];
+                                    }
+
+
+                                 endforeach;
+                          $str_out .=  '</div></div>';
+                          endforeach;
+                      else :
+                    $str_out .= '<div class="item-row">';
+                    $str_out .= '<h4 class="field-title">' .  __( 'Profile is empty', 'sb-wishlist' ) . '</h4>';
+                    $str_out .= '</div>';
+                      endif;
+                    $str_out .= '</div>';
+
+
+
+
+
+            foreach ( $fields as $row ) :
+
+                if ( ! empty ( $userform ) ) {
+
+                    $arr_user_terms = array();
+
+                    foreach ( $userform as $value ) :
+                        if ( $row->meta_id === $value['meta_id'] ) {
+                            $arr_user_terms[] = $value['value'];
+                        }
+                    endforeach;
+                }
+
+                if ( $row->meta_type !== 'plain_text' ) :
+
+                    $recommendations = 0;
+                    $arr_terms_category = array();
+
+                    /* Size on tops */
+                    if ( $row->meta_id == 2 ) {
+
+                        $cat = get_term_by( 'slug', 'overdelar', 'product_cat' );
+                        $arr_terms_category[] = $cat->term_id;
+
+                        $size = get_term( $arr_user_terms[0], 'pa_storlek' );
+                        $size_slug = $size->slug;
+                        $size = $size->name;
+
+                        $recommendations = SB_Wishlist_Form::get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms );
+
+                        if ( ! empty( $recommendations ) ) :
+                            $str_out .= '<div class="item-right">';
+                            $str_out .= '<h3 class="field-title">' . __( 'Top recommendations', 'sb-wishlist' ) . '</h3>';
+
+                        endif;
+
+                    }
+
+                    if ( ! empty( $recommendations ) ) :
+
+
+                        $str_out .= '<ul class="sbws-recommendation-list">';
+                        foreach ( $recommendations as $item ):
+
+                            $data = $item->get_data();
+
+                            $product = new WC_Product( $item->id );
+                            $availability = $product->get_availability();
+                            $stock_status = isset( $availability['class'] ) ? $availability['class'] : false;
+
+
+                            $str_out .= '<li class="list-item">';
+                            $str_out .= '<div class="list-item-inner">';
+                            $str_out .= '<div class="sbws-col" data-col="image">';
+                            $str_out .= '<a href="' .  esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) . '?size=' .  $size_slug . '">';
+                            $str_out .=  wp_kses_post( $product->get_image() ) . '</a></div>';
+                            $str_out .= '<div class="sbws-col" data-col="name">';
+                            $str_out .= '<a href="' .  esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) . '?size=' . $size_slug . '">';
+                            $str_out .=  $data['name'] . '</a></div>';
+                            $str_out .= '<div class="sbws-col" data-col="size">';
+                            $array_size = explode(", ", $item->get_attribute( 'pa_storlek' ) );
+
+                            if ( in_array( $size,  $array_size ) ) {
+                                $str_out .= 'Size: ' . $size;
+                             }
+
+                            $str_out .= '</div><div class="sbws-col" data-col="button">';
+
+                            if ( isset( $stock_status ) && $stock_status != 'out-of-stock' && ! is_admin() ):
+
+                            $str_out .= '<div class="add-to-cart-wrap" data-placement="top">';
+                            $str_out .= '<a href="' . esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) )  . '?size=' .  $size_slug . '" data-product_id="' .  esc_attr( $item->id ) . '"  class="button product_type_simple add_to_cart_button product_type_simple" data-default_icon="sf-icon-add-to-cart add_to_cart button alt" data-loading_text="Adding..." data-added_text="Item added" data-added_short="Added" aria-label="Read more about “Part Two - Raja”" rel="nofollow"> Lägg till i kundvagn</a>';
+                            $str_out .= '</div>';
+
+                            endif;
+                            $str_out .= '</div>';
+                            $str_out .= '</div>';
+                            $str_out .= '</li>';
+                        endforeach;
+                        $str_out .= '</div></li>';
+
+                        //$str_out += '</div>';
+                        $str_out .= '</ul></div>';
+
+                    endif;
+
+                endif;
+
+            endforeach;
+
+            return $str_out;
+
+        }
+
     }
 endif;

@@ -43,10 +43,12 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
             add_action('wp_ajax_' . self::AJAX_ACTION . '_get_fields', array($this, 'ajax_get_fields'));
             add_action('wp_ajax_' . self::AJAX_ACTION . '_submit_form', array($this, 'ajax_submit_form'));
             add_action('wp_ajax_' . self::AJAX_ACTION . '_product_dislike', array($this, 'ajax_product_dislike'));
+            add_action('wp_ajax_' . self::AJAX_ACTION . '_product_like', array($this, 'ajax_product_like'));
             add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_get_form', array($this, 'ajax_get_form'));
             add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_get_fields', array($this, 'ajax_get_fields'));
             add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_submit_form', array($this, 'ajax_submit_form'));
             add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_product_dislike', array($this, 'ajax_product_dislike'));
+            add_action('wp_ajax_nopriv_' . self::AJAX_ACTION . '_product_like', array($this, 'ajax_product_like'));
 
             
             add_action('wp_footer', array($this, 'render_templates'),21);
@@ -181,7 +183,7 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
 
         }
 
-        private function get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms ){
+        public function get_suggested_product( $user_id, $arr_terms_category, $arr_user_terms ){
 
             global $wpdb;
 
@@ -236,7 +238,6 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
              ?>
 
             <ul class="sbws-users-list">
-
                 <div class="item-right">
 
                         <?php
@@ -694,6 +695,54 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
         private function get_dislike_products( $userID ){
             global $wpdb;
             $table = $wpdb->prefix . 'sbws_dislike_list';
+
+            $result = $wpdb->get_results("SELECT prod_id FROM $table WHERE user_id = $userID");
+
+            return $result;
+
+        }
+
+        public function ajax_product_like(){
+
+
+            if ( is_user_logged_in() ) {
+                $user_id = get_current_user_id();
+
+                $data = $_POST['data'];
+
+                $like_set = SB_Wishlist_Form::check_if_like_is_set( $user_id, $data['product_id'] );
+
+                if ( ! $like_set ) {
+                    global $wpdb;
+                    $table = $wpdb->prefix . 'sbws_like_list';
+                    $wpdb->insert( $table, array( 'prod_id' => $data['product_id'], 'user_id' => $user_id , 'dateadded' => date( 'Y-m-d H:i:s') ) );
+                }
+
+                $response['success'] = true;
+
+            } else {
+                $response['success'] = false;
+            }
+
+            wp_send_json_success($response);
+        }
+
+        public function check_if_like_is_set( $userID, $product_id ){
+            global $wpdb;
+            $table = $wpdb->prefix . 'sbws_like_list';
+            $result = $wpdb->get_var("SELECT id FROM $table WHERE user_id = $userID AND prod_id = $product_id");
+
+            if ( ! empty( $result ) ) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+        private function get_like_products( $userID ){
+            global $wpdb;
+            $table = $wpdb->prefix . 'sbws_like_list';
 
             $result = $wpdb->get_results("SELECT prod_id FROM $table WHERE user_id = $userID");
 
