@@ -707,3 +707,13 @@ a, button{
         flex: 1 1 200px;
     }
 }
+
+.input-customer-group .select2-container .select2-selection--single {
+    height: 40px;
+    padding: 5px;
+}
+
+.input-customer-group .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+    width: 25px;
+}

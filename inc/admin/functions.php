@@ -99,9 +99,6 @@ function product_dislike_button( $extra_class = "" ) {
 
 }
 
-function wishlist ( $User1d ) {
-    return SB_Wishlist_Admin::get_suggested_list_admin( $User1d );
-}
 
 add_action( 'woocommerce_after_shop_loop_item_title', 'product_details_add', 20 );
 
@@ -126,4 +123,4 @@ function product_details_add(){
 
 
 
-//<i class="far fa-heart"></i>
+

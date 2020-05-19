@@ -692,7 +692,7 @@ if ( ! class_exists( 'SB_Wishlist_Form' ) ) :
             }
         }
 
-        private function get_dislike_products( $userID ){
+        public function get_dislike_products( $userID ){
             global $wpdb;
             $table = $wpdb->prefix . 'sbws_dislike_list';
 

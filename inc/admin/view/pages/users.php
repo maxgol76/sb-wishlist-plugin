@@ -7,9 +7,9 @@
 
     <div class="input-customer-group">
 
-            <select class="filter-customer">
+            <select class="field-options-select filter-customer" placeholder="Filter Customer" style="min-width: 400px; min-height: 60px;">
 
-                <option value="0">Filter Customer</option>
+                <option value="" disabled selected>Select user</option>
 
                 <?php foreach( $users as $user ) : ?>
                     <?php $usermeta = get_user_meta( $user->user_id );

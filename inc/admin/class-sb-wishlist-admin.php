@@ -914,11 +914,88 @@ if (!class_exists('SB_Wishlist_Admin') && class_exists('SB_Wishlist')) :
             $data    = $_POST['data'];
             $user_id = $data['user_id'];
 
-           $json['html'] = wishlist ( $user_id  );  // self::get_suggested_list_admin( $user_id );    //'<h3>New list fo User Id ' . $user_id . '</h3>' ; //SB_Wishlist_Form::get_suggested_list2( $user_id );
+           $json['html']  = SB_Wishlist_Admin::get_suggested_list_admin( $user_id );
+           //$json['html'] .= SB_Wishlist_Admin::get_dislike_list_admin( $user_id );
 
             $json['success'] = true;
 
             wp_send_json_success( $json );
+        }
+
+
+        public function get_dislike_list_admin( $userID ) {
+
+            global $product, $woocommerce;
+
+            $str_out = '';
+
+            $user_id = $userID;
+
+            $userd = get_userdata( $user_id );
+
+            $str_out .= '<h3 class="field-title">' .  __( 'Disliked items', 'sb-wishlist' ) . '</h3>';
+
+            //return $str_out;
+
+
+                //$ids = SB_Wishlist_Form::get_dislike_products( $userd );
+
+            global $wpdb;
+            $table = $wpdb->prefix . 'sbws_dislike_list';
+
+            $ids = $wpdb->get_results("SELECT prod_id FROM $table WHERE user_id = $userID");
+
+                if ( ! empty( $ids ) ) :
+
+                    $include_ids = array();
+                    foreach ( $ids as $include_id ) {
+                        $include_ids[] = $include_id->prod_id;
+                    }
+
+                    $args = array(
+                        'post_type' => 'product',
+                        //'limit' => 5,
+                        'status' => 'publish',
+                        'orderby' => 'date',
+                        'order' => 'DESC',
+                        'include' => $include_ids,
+                    );
+
+                    $dislike_products = wc_get_products( $args );
+
+                   // var_dump($dislike_products);
+
+                    if ( ! empty( $dislike_products ) ) :
+
+                        $str_out .= '<ul class="sbws-recommendation-list">';
+                             foreach ( $dislike_products as $item ):
+
+                                $data = $item->get_data();
+
+                                $product = new WC_Product( $item->id );
+
+                                 $str_out .= '<li class="list-item">';
+                                 $str_out .= '<div class="list-item-inner">';
+                                 $str_out .= '<div class="sbws-col" data-col="image">';
+                                 $str_out .= '<a href="' .  esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) .  '">';
+                                 $str_out .=  wp_kses_post( $product->get_image() );
+                                 $str_out .= '</a></div><div class="sbws-col" data-col="name">';
+                                 $str_out .= '<a href="' . esc_url( get_permalink( apply_filters( 'woocommerce_in_cart_product', $item->id ) ) ) . '">';
+                                 $str_out .= $data['name'];
+                                 $str_out .= '</a></div><div class="sbws-col" data-col="size"></div><div class="sbws-col" data-col="button"></div></div></li>';
+                              endforeach;
+                        $str_out .= '</ul>';
+
+                    endif;
+
+                else :
+
+                    $str_out .= '<p></p>';
+                    $str_out .= '<h4 class="field-title">' . __( 'No disliked items yet', 'sb-wishlist' ) . '</h4>';
+
+                endif;
+
+            return $str_out;
         }
 
         public function get_suggested_list_admin( $userID ){
@@ -1070,10 +1147,12 @@ if (!class_exists('SB_Wishlist_Admin') && class_exists('SB_Wishlist')) :
                             $str_out .= '</div>';
                             $str_out .= '</li>';
                         endforeach;
-                        $str_out .= '</div></li>';
+                        $str_out .= SB_Wishlist_Admin::get_dislike_list_admin( $user_id );
+                        $str_out .= '</div></li></ul>';
 
-                        //$str_out += '</div>';
-                        $str_out .= '</ul></div>';
+
+                        $str_out .= '</div>';
+
 
                     endif;
 
