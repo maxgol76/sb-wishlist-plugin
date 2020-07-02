@@ -107,27 +107,7 @@ if ( wcs_user_has_subscription( $user->ID, '', 'active' ) ) :
         </div>
 
     </form>
-
-
-    <!--<h3><?php /*_e( 'Your disliked items!', 'sb-wishlist' ); */?></h3>
-    <p><?php /*_e( 'These items will never be recommended to you', 'sb-wishlist' ); */?></p>
-
-    <div style="margin-bottom: 40px;"></div>
-
-    <?php
-/*        $args = array('post_type' => 'product', 'posts_per_page' => 3, 'product_cat' => 'chic');
-        $loop = new WP_Query($args);
-        while ($loop->have_posts()) : $loop->the_post();
-        global $product;
-    */?>
-    <div class="disliked-product">
-        <img src="<?/*= get_the_post_thumbnail_url($loop->post->ID); */?>" alt="shop_catalog">
-        <h3 class="product-title"><?/*= get_the_title() */?></h3>
-        <a href="#" class="btn ">Delete from dislike list</a>
-    </div>
-    --><?php /*endwhile;
-    wp_reset_query();
-    */?>
+  
 </div>
 
 <?php  else: ?>
